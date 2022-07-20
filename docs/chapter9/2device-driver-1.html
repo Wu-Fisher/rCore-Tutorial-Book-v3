@@ -1,166 +1,401 @@
-<!DOCTYPE html>
-<html class="writer-html5" lang="zh-CN" >
-<head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+<!doctype html>
+<html class="no-js" lang="zh_CN">
+  <head><meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1"/>
+    <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+<link rel="index" title="索引" href="../genindex.html" /><link rel="search" title="搜索" href="../search.html" /><link rel="next" title="virtio设备驱动程序" href="2device-driver-2.html" /><link rel="prev" title="I/O设备" href="1io-interface.html" />
 
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>外设平台与串口驱动程序 &mdash; rCore-Tutorial-Book-v3 3.6.0-alpha.1 文档</title>
-      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
-      <link rel="stylesheet" href="../_static/my_style.css" type="text/css" />
-  <!--[if lt IE 9]>
-    <script src="../_static/js/html5shiv.min.js"></script>
-  <![endif]-->
+    <meta name="generator" content="sphinx-4.2.0, furo 2022.06.21"/>
+        <title>外设平台与串口驱动程序 - rCore-Tutorial-Book-v3 3.6.0-alpha.1 文档</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?digest=40978830699223671f4072448e654b5958f38b89" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/furo-extensions.css?digest=30d1aed668e5c3a91c3e3bf6a60b675221979f0e" />
+    <link rel="stylesheet" type="text/css" href="../_static/my_style.css" />
+    
+    
+
+
+<style>
+  body {
+    --color-code-background: #f8f8f8;
+  --color-code-foreground: black;
   
-        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
-        <script src="../_static/jquery.js"></script>
-        <script src="../_static/underscore.js"></script>
-        <script src="../_static/doctools.js"></script>
-        <script kind="utterances">
-
-    var commentsRunWhenDOMLoaded = cb => {
-    if (document.readyState != 'loading') {
-        cb()
-    } else if (document.addEventListener) {
-        document.addEventListener('DOMContentLoaded', cb)
-    } else {
-        document.attachEvent('onreadystatechange', function() {
-        if (document.readyState == 'complete') cb()
-        })
+  }
+  @media not print {
+    body[data-theme="dark"] {
+      --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
     }
-}
-
-var addUtterances = () => {
-    var script = document.createElement("script");
-    script.type = "text/javascript";
-    script.src = "https://utteranc.es/client.js";
-    script.async = "async";
-
-    script.setAttribute("repo", "rcore-os/rCore-Tutorial-Book-v3");
-    script.setAttribute("issue-term", "pathname");
-    script.setAttribute("theme", "github-light");
-    script.setAttribute("label", "comments");
-    script.setAttribute("crossorigin", "anonymous");
-
-    sections = document.querySelectorAll("div > section");
-    if (sections !== null) {
-        section = sections[sections.length-1];
-        section.appendChild(script);
+    @media (prefers-color-scheme: dark) {
+      body:not([data-theme="light"]) {
+        --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+      }
     }
-}
-commentsRunWhenDOMLoaded(addUtterances);
-</script>
-        <script src="../_static/translations.js"></script>
-    <script src="../_static/js/theme.js"></script>
-    <link rel="index" title="索引" href="../genindex.html" />
-    <link rel="search" title="搜索" href="../search.html" />
-    <link rel="next" title="virtio设备驱动程序" href="2device-driver-2.html" />
-    <link rel="prev" title="I/O设备" href="1io-interface.html" /> 
-</head>
+  }
+</style></head>
+  <body>
+    
+    <script>
+      document.body.dataset.theme = localStorage.getItem("theme") || "auto";
+    </script>
+    
 
-<body class="wy-body-for-nav"> 
-  <div class="wy-grid-for-nav">
-    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
-      <div class="wy-side-scroll">
-        <div class="wy-side-nav-search" >
-            <a href="../index.html" class="icon icon-home"> rCore-Tutorial-Book-v3
-          </a>
-<div role="search">
-  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
-    <input type="text" name="q" placeholder="在文档中搜索" />
-    <input type="hidden" name="check_keywords" value="yes" />
-    <input type="hidden" name="area" value="default" />
-  </form>
-</div>
-        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <p class="caption"><span class="caption-text">Part1 - Just do it!</span></p>
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+  <symbol id="svg-toc" viewBox="0 0 24 24">
+    <title>Contents</title>
+    <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 1024 1024">
+      <path d="M408 442h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8zm-8 204c0 4.4 3.6 8 8 8h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56zm504-486H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zm0 632H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zM115.4 518.9L271.7 642c5.8 4.6 14.4.5 14.4-6.9V388.9c0-7.4-8.5-11.5-14.4-6.9L115.4 505.1a8.74 8.74 0 0 0 0 13.8z"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-menu" viewBox="0 0 24 24">
+    <title>Menu</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-menu">
+      <line x1="3" y1="12" x2="21" y2="12"></line>
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <line x1="3" y1="18" x2="21" y2="18"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-arrow-right" viewBox="0 0 24 24">
+    <title>Expand</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-chevron-right">
+      <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+  </symbol>
+  <symbol id="svg-sun" viewBox="0 0 24 24">
+    <title>Light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="feather-sun">
+      <circle cx="12" cy="12" r="5"></circle>
+      <line x1="12" y1="1" x2="12" y2="3"></line>
+      <line x1="12" y1="21" x2="12" y2="23"></line>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+      <line x1="1" y1="12" x2="3" y2="12"></line>
+      <line x1="21" y1="12" x2="23" y2="12"></line>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon" viewBox="0 0 24 24">
+    <title>Dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-moon">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
+    </svg>
+  </symbol>
+  <symbol id="svg-sun-half" viewBox="0 0 24 24">
+    <title>Auto light/dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-shadow">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+      <circle cx="12" cy="12" r="9" />
+      <path d="M13 12h5" />
+      <path d="M13 15h4" />
+      <path d="M13 18h1" />
+      <path d="M13 9h4" />
+      <path d="M13 6h1" />
+    </svg>
+  </symbol>
+</svg>
+
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation">
+<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc">
+<label class="overlay sidebar-overlay" for="__navigation">
+  <div class="visually-hidden">Hide navigation sidebar</div>
+</label>
+<label class="overlay toc-overlay" for="__toc">
+  <div class="visually-hidden">Hide table of contents sidebar</div>
+</label>
+
+
+
+<div class="page">
+  <header class="mobile-header">
+    <div class="header-left">
+      <label class="nav-overlay-icon" for="__navigation">
+        <div class="visually-hidden">Toggle site navigation sidebar</div>
+        <i class="icon"><svg><use href="#svg-menu"></use></svg></i>
+      </label>
+    </div>
+    <div class="header-center">
+      <a href="../index.html"><div class="brand">rCore-Tutorial-Book-v3 3.6.0-alpha.1 文档</div></a>
+    </div>
+    <div class="header-right">
+      <div class="theme-toggle-container theme-toggle-header">
+        <button class="theme-toggle">
+          <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+          <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
+          <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+          <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+        </button>
+      </div>
+      <label class="toc-overlay-icon toc-header-icon" for="__toc">
+        <div class="visually-hidden">Toggle table of contents sidebar</div>
+        <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+      </label>
+    </div>
+  </header>
+  <aside class="sidebar-drawer">
+    <div class="sidebar-container">
+      
+      <div class="sidebar-sticky"><a class="sidebar-brand" href="../index.html">
+  
+  
+  <span class="sidebar-brand-text">rCore-Tutorial-Book-v3 3.6.0-alpha.1 文档</span>
+  
+</a><form class="sidebar-search-container" method="get" action="../search.html" role="search">
+  <input class="sidebar-search" placeholder=搜索 name="q" aria-label="搜索">
+  <input type="hidden" name="check_keywords" value="yes">
+  <input type="hidden" name="area" value="default">
+</form>
+<div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
+  <p class="caption" role="heading"><span class="caption-text">Part1 - Just do it!</span></p>
 <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="../chapter0/index.html">第零章：操作系统概述</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../chapter1/index.html">第一章：应用程序与基本执行环境</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../chapter2/index.html">第二章：批处理系统</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../chapter3/index.html">第三章：多道程序与分时多任务</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../chapter4/index.html">第四章：地址空间</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../chapter5/index.html">第五章：进程</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../chapter6/index.html">第六章：文件系统</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../chapter7/index.html">第七章：进程间通信与 I/O 重定向</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../chapter8/index.html">第八章：并发</a></li>
-<li class="toctree-l1 current"><a class="reference internal" href="index.html">第九章：I/O设备管理</a><ul class="current">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../chapter0/index.html">第零章：操作系统概述</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../chapter0/0intro.html">为何要写这本操作系统书</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../chapter0/1what-is-os.html">什么是操作系统</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="simple">
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../chapter0/2os-interface.html">操作系统的系统调用接口</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="simple">
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../chapter0/3os-hw-abstract.html">操作系统抽象</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="simple">
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../chapter0/4os-features.html">操作系统的特征</a><input class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" role="switch" type="checkbox"/><label for="toctree-checkbox-5"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="simple">
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../chapter0/5setup-devel-env.html">实验环境配置</a><input class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" role="switch" type="checkbox"/><label for="toctree-checkbox-6"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="simple">
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../chapter0/6hardware.html">K210 开发板相关问题</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../chapter0/7exercise.html">练习</a><input class="toctree-checkbox" id="toctree-checkbox-7" name="toctree-checkbox-7" role="switch" type="checkbox"/><label for="toctree-checkbox-7"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="simple">
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../chapter0/8answer.html">练习参考答案</a><input class="toctree-checkbox" id="toctree-checkbox-8" name="toctree-checkbox-8" role="switch" type="checkbox"/><label for="toctree-checkbox-8"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="simple">
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../chapter1/index.html">第一章：应用程序与基本执行环境</a><input class="toctree-checkbox" id="toctree-checkbox-9" name="toctree-checkbox-9" role="switch" type="checkbox"/><label for="toctree-checkbox-9"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../chapter1/0intro.html">引言</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../chapter1/1app-ee-platform.html">应用程序执行环境与平台支持</a><input class="toctree-checkbox" id="toctree-checkbox-10" name="toctree-checkbox-10" role="switch" type="checkbox"/><label for="toctree-checkbox-10"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="simple">
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../chapter1/2remove-std.html">移除标准库依赖</a><input class="toctree-checkbox" id="toctree-checkbox-11" name="toctree-checkbox-11" role="switch" type="checkbox"/><label for="toctree-checkbox-11"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="simple">
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../chapter1/3first-instruction-in-kernel1.html">内核第一条指令（原理篇）</a><input class="toctree-checkbox" id="toctree-checkbox-12" name="toctree-checkbox-12" role="switch" type="checkbox"/><label for="toctree-checkbox-12"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="simple">
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../chapter1/4first-instruction-in-kernel2.html">内核第一条指令（实践篇）</a><input class="toctree-checkbox" id="toctree-checkbox-13" name="toctree-checkbox-13" role="switch" type="checkbox"/><label for="toctree-checkbox-13"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="simple">
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../chapter1/5support-func-call.html">为内核支持函数调用</a><input class="toctree-checkbox" id="toctree-checkbox-14" name="toctree-checkbox-14" role="switch" type="checkbox"/><label for="toctree-checkbox-14"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="simple">
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../chapter1/6print-and-shutdown-based-on-sbi.html">基于 SBI 服务完成输出和关机</a><input class="toctree-checkbox" id="toctree-checkbox-15" name="toctree-checkbox-15" role="switch" type="checkbox"/><label for="toctree-checkbox-15"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="simple">
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../chapter1/7exercise.html">练习</a><input class="toctree-checkbox" id="toctree-checkbox-16" name="toctree-checkbox-16" role="switch" type="checkbox"/><label for="toctree-checkbox-16"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="simple">
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../chapter1/8answer.html">练习参考答案</a><input class="toctree-checkbox" id="toctree-checkbox-17" name="toctree-checkbox-17" role="switch" type="checkbox"/><label for="toctree-checkbox-17"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="simple">
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../chapter2/index.html">第二章：批处理系统</a><input class="toctree-checkbox" id="toctree-checkbox-18" name="toctree-checkbox-18" role="switch" type="checkbox"/><label for="toctree-checkbox-18"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../chapter2/0intro.html">引言</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../chapter2/1rv-privilege.html">特权级机制</a><input class="toctree-checkbox" id="toctree-checkbox-19" name="toctree-checkbox-19" role="switch" type="checkbox"/><label for="toctree-checkbox-19"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="simple">
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../chapter2/2application.html">实现应用程序</a><input class="toctree-checkbox" id="toctree-checkbox-20" name="toctree-checkbox-20" role="switch" type="checkbox"/><label for="toctree-checkbox-20"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="simple">
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../chapter2/3batch-system.html">实现批处理操作系统</a><input class="toctree-checkbox" id="toctree-checkbox-21" name="toctree-checkbox-21" role="switch" type="checkbox"/><label for="toctree-checkbox-21"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="simple">
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../chapter2/4trap-handling.html">实现特权级的切换</a><input class="toctree-checkbox" id="toctree-checkbox-22" name="toctree-checkbox-22" role="switch" type="checkbox"/><label for="toctree-checkbox-22"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="simple">
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../chapter2/5exercise.html">练习</a><input class="toctree-checkbox" id="toctree-checkbox-23" name="toctree-checkbox-23" role="switch" type="checkbox"/><label for="toctree-checkbox-23"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="simple">
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../chapter2/6answer.html">练习参考答案</a><input class="toctree-checkbox" id="toctree-checkbox-24" name="toctree-checkbox-24" role="switch" type="checkbox"/><label for="toctree-checkbox-24"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="simple">
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../chapter3/index.html">第三章：多道程序与分时多任务</a><input class="toctree-checkbox" id="toctree-checkbox-25" name="toctree-checkbox-25" role="switch" type="checkbox"/><label for="toctree-checkbox-25"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../chapter3/0intro.html">引言</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../chapter3/1multi-loader.html">多道程序放置与加载</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../chapter3/2task-switching.html">任务切换</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../chapter3/3multiprogramming.html">多道程序与协作式调度</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../chapter3/4time-sharing-system.html">分时多任务系统与抢占式调度</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../chapter3/5exercise.html">练习</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../chapter3/6answer.html">练习参考答案</a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../chapter4/index.html">第四章：地址空间</a><input class="toctree-checkbox" id="toctree-checkbox-26" name="toctree-checkbox-26" role="switch" type="checkbox"/><label for="toctree-checkbox-26"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../chapter4/0intro.html">引言</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../chapter4/1rust-dynamic-allocation.html">Rust 中的动态内存分配</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../chapter4/2address-space.html">地址空间</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../chapter4/3sv39-implementation-1.html">SV39 多级页表的硬件机制</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../chapter4/4sv39-implementation-2.html">管理 SV39 多级页表</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../chapter4/5kernel-app-spaces.html">内核与应用的地址空间</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../chapter4/6multitasking-based-on-as.html">基于地址空间的分时多任务</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../chapter4/7more-as.html">超越物理内存的地址空间</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../chapter4/8exercise.html">练习</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../chapter4/9answer.html">练习参考答案</a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../chapter5/index.html">第五章：进程</a><input class="toctree-checkbox" id="toctree-checkbox-27" name="toctree-checkbox-27" role="switch" type="checkbox"/><label for="toctree-checkbox-27"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../chapter5/0intro.html">引言</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../chapter5/1process.html">进程概念及重要系统调用</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../chapter5/2core-data-structures.html">进程管理的核心数据结构</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../chapter5/3implement-process-mechanism.html">进程管理机制的设计实现</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../chapter5/4scheduling.html">进程调度</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../chapter5/5exercise.html">练习</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../chapter5/6answer.html">练习参考答案</a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../chapter6/index.html">第六章：文件系统</a><input class="toctree-checkbox" id="toctree-checkbox-28" name="toctree-checkbox-28" role="switch" type="checkbox"/><label for="toctree-checkbox-28"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../chapter6/0intro.html">引言</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../chapter6/1fs-interface.html">文件系统接口</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../chapter6/2fs-implementation.html">简易文件系统 easy-fs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../chapter6/3using-easy-fs-in-kernel.html">在内核中接入 easy-fs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../chapter6/4exercise.html">练习</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../chapter6/5answer.html">练习参考答案</a><input class="toctree-checkbox" id="toctree-checkbox-29" name="toctree-checkbox-29" role="switch" type="checkbox"/><label for="toctree-checkbox-29"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="simple">
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../chapter7/index.html">第七章：进程间通信与 I/O 重定向</a><input class="toctree-checkbox" id="toctree-checkbox-30" name="toctree-checkbox-30" role="switch" type="checkbox"/><label for="toctree-checkbox-30"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../chapter7/0intro.html">引言</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../chapter7/1file-descriptor.html">基于文件的标准输入/输出</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../chapter7/2pipe.html">管道</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../chapter7/3cmdargs-and-redirection.html">命令行参数与标准 I/O 重定向</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../chapter7/4signal.html">信号</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../chapter7/5exercise.html">练习</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../chapter7/6answer.html">练习参考答案</a><input class="toctree-checkbox" id="toctree-checkbox-31" name="toctree-checkbox-31" role="switch" type="checkbox"/><label for="toctree-checkbox-31"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="simple">
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../chapter8/index.html">第八章：并发</a><input class="toctree-checkbox" id="toctree-checkbox-32" name="toctree-checkbox-32" role="switch" type="checkbox"/><label for="toctree-checkbox-32"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../chapter8/0intro.html">引言</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../chapter8/1thread.html">用户态的线程管理</a><input class="toctree-checkbox" id="toctree-checkbox-33" name="toctree-checkbox-33" role="switch" type="checkbox"/><label for="toctree-checkbox-33"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="simple">
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../chapter8/1thread-kernel.html">内核态的线程管理</a><input class="toctree-checkbox" id="toctree-checkbox-34" name="toctree-checkbox-34" role="switch" type="checkbox"/><label for="toctree-checkbox-34"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="simple">
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../chapter8/2lock.html">锁机制</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../chapter8/3semaphore.html">信号量机制</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../chapter8/4condition-variable.html">条件变量机制</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../chapter8/5concurrency-problem.html">并发中的问题</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../chapter8/6exercise.html">练习</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../chapter8/7answer.html">练习参考答案</a><input class="toctree-checkbox" id="toctree-checkbox-35" name="toctree-checkbox-35" role="switch" type="checkbox"/><label for="toctree-checkbox-35"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="simple">
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1 current has-children"><a class="reference internal" href="index.html">第九章：I/O设备管理</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-36" name="toctree-checkbox-36" role="switch" type="checkbox"/><label for="toctree-checkbox-36"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="0intro.html">引言</a></li>
 <li class="toctree-l2"><a class="reference internal" href="1io-interface.html">I/O设备</a></li>
-<li class="toctree-l2 current"><a class="current reference internal" href="#">外设平台与串口驱动程序</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#id2">本节导读</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#id3">驱动程序概述</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#id4">硬件系统架构</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#id5">设备树</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#id6">传递设备树信息</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#id7">解析设备树信息</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#id8">平台级中断控制器</a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="#id9">串口驱动程序</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#id10">串口设备初始化</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#id11">串口设备输入输出操作</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#id12">对进程管理的改进</a></li>
-</ul>
-</li>
-</ul>
-</li>
+<li class="toctree-l2 current current-page"><a class="current reference internal" href="#">外设平台与串口驱动程序</a></li>
 <li class="toctree-l2"><a class="reference internal" href="2device-driver-2.html">virtio设备驱动程序</a></li>
-<li class="toctree-l2"><a class="reference internal" href="4exercise.html">练习</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="4exercise.html">练习</a><input class="toctree-checkbox" id="toctree-checkbox-37" name="toctree-checkbox-37" role="switch" type="checkbox"/><label for="toctree-checkbox-37"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="simple">
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="5answer.html">练习参考答案</a><input class="toctree-checkbox" id="toctree-checkbox-38" name="toctree-checkbox-38" role="switch" type="checkbox"/><label for="toctree-checkbox-38"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="simple">
 </ul>
 </li>
 </ul>
-<p class="caption"><span class="caption-text">附录</span></p>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">附录</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../final-lab.html">综合练习</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../appendix-a/index.html">附录 A：Rust 系统编程入门</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../appendix-b/index.html">附录 B：常见工具的使用方法</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../appendix-c/index.html">附录 C：深入机器模式：RustSBI</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../appendix-d/index.html">附录 D：RISC-V相关信息</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../appendix-e/index.html">附录 E：操作系统进一步介绍</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../terminology.html">术语中英文对照表</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../appendix-a/index.html">附录 A：Rust 系统编程入门</a><input class="toctree-checkbox" id="toctree-checkbox-39" name="toctree-checkbox-39" role="switch" type="checkbox"/><label for="toctree-checkbox-39"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="simple">
 </ul>
-<p class="caption"><span class="caption-text">开发注记</span></p>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../appendix-b/index.html">附录 B：常见工具的使用方法</a><input class="toctree-checkbox" id="toctree-checkbox-40" name="toctree-checkbox-40" role="switch" type="checkbox"/><label for="toctree-checkbox-40"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="simple">
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../appendix-c/index.html">附录 C：深入机器模式：RustSBI</a><input class="toctree-checkbox" id="toctree-checkbox-41" name="toctree-checkbox-41" role="switch" type="checkbox"/><label for="toctree-checkbox-41"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="simple">
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../appendix-d/index.html">附录 D：RISC-V相关信息</a><input class="toctree-checkbox" id="toctree-checkbox-42" name="toctree-checkbox-42" role="switch" type="checkbox"/><label for="toctree-checkbox-42"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../appendix-d/1asm.html">RISCV 汇编相关</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../appendix-d/2rv.html">RISCV 硬件相关</a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../appendix-e/index.html">附录 E：操作系统进一步介绍</a><input class="toctree-checkbox" id="toctree-checkbox-43" name="toctree-checkbox-43" role="switch" type="checkbox"/><label for="toctree-checkbox-43"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="simple">
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../terminology.html">术语中英文对照表</a><input class="toctree-checkbox" id="toctree-checkbox-44" name="toctree-checkbox-44" role="switch" type="checkbox"/><label for="toctree-checkbox-44"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="simple">
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">开发注记</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../setup-sphinx.html">修改和构建本项目</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../rest-example.html">reStructuredText 基本语法</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../setup-sphinx.html">修改和构建本项目</a><input class="toctree-checkbox" id="toctree-checkbox-45" name="toctree-checkbox-45" role="switch" type="checkbox"/><label for="toctree-checkbox-45"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="simple">
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../rest-example.html">reStructuredText 基本语法</a><input class="toctree-checkbox" id="toctree-checkbox-46" name="toctree-checkbox-46" role="switch" type="checkbox"/><label for="toctree-checkbox-46"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="simple">
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="../log.html">更新日志</a></li>
 </ul>
 
-        </div>
-      </div>
-    </nav>
-
-    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
-          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-          <a href="../index.html">rCore-Tutorial-Book-v3</a>
-      </nav>
-
-      <div class="wy-nav-content">
-        <div class="rst-content">
-          <div role="navigation" aria-label="Page navigation">
-  <ul class="wy-breadcrumbs">
-      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
-          <li><a href="index.html">第九章：I/O设备管理</a> &raquo;</li>
-      <li>外设平台与串口驱动程序</li>
-      <li class="wy-breadcrumbs-aside">
-            <a href="../_sources/chapter9/2device-driver-1.rst.txt" rel="nofollow"> 查看页面源码</a>
-      </li>
-  </ul>
-  <hr/>
 </div>
-          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
-           <div itemprop="articleBody">
-             
-  <section id="id1">
-<h1>外设平台与串口驱动程序<a class="headerlink" href="#id1" title="永久链接至标题"></a></h1>
+</div>
+
+      </div>
+      
+    </div>
+  </aside>
+  <div class="main">
+    <div class="content">
+      <div class="article-container">
+        <a href="#" class="back-to-top muted-link">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12z"></path>
+          </svg>
+          <span>Back to top</span>
+        </a>
+        <div class="content-icon-container">
+          <div class="theme-toggle-container theme-toggle-content">
+            <button class="theme-toggle">
+              <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+              <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
+              <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+              <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+            </button>
+          </div>
+          <label class="toc-overlay-icon toc-content-icon" for="__toc">
+            <div class="visually-hidden">Toggle table of contents sidebar</div>
+            <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+          </label>
+        </div>
+        <article role="main">
+          <section id="id1">
+<h1>外设平台与串口驱动程序<a class="headerlink" href="#id1" title="永久链接至标题">#</a></h1>
 <section id="id2">
-<h2>本节导读<a class="headerlink" href="#id2" title="永久链接至标题"></a></h2>
+<h2>本节导读<a class="headerlink" href="#id2" title="永久链接至标题">#</a></h2>
 <p>本节首先讲述了驱动程序要完成的主要功能，包括初始化设备，接收用户进程的I/O请求并给设备发出I
 /O命令，响应设备发出的通知，完成用户进程的I/O请求。然后介绍了计算机硬件系统中除了CPU/内存之外的其他重要的外设和相关I/O控制器，以及如何通过编程来获取外设相关信息。最后介绍了一个具体的物理设备串口的驱动程序的设计与实现。</p>
 </section>
 <section id="id3">
-<h2>驱动程序概述<a class="headerlink" href="#id3" title="永久链接至标题"></a></h2>
+<h2>驱动程序概述<a class="headerlink" href="#id3" title="永久链接至标题">#</a></h2>
 <p>从操作系统架构上看，驱动程序与I/O设备靠的更近，离应用程序更远，这使得驱动程序需要站在协助所有进程的全局角度来处理各种I/O操作。这也就意味着在驱动程序的设计实现中，尽量不要与单个进程建立直接的联系，而是在全局角度对I/O设备进行统一处理。</p>
 <p>上面只是介绍了CPU和I/O设备之间的交互手段。如果从操作系统角度来看，我们还需要对特定设备编写驱动程序。它一般需要完成如下一些功能：</p>
 <ol class="arabic simple">
@@ -179,9 +414,9 @@ commentsRunWhenDOMLoaded(addUtterances);
 </ol>
 </section>
 <section id="id4">
-<h2>硬件系统架构<a class="headerlink" href="#id4" title="永久链接至标题"></a></h2>
+<h2>硬件系统架构<a class="headerlink" href="#id4" title="永久链接至标题">#</a></h2>
 <section id="id5">
-<h3>设备树<a class="headerlink" href="#id5" title="永久链接至标题"></a></h3>
+<h3>设备树<a class="headerlink" href="#id5" title="永久链接至标题">#</a></h3>
 <p>首先，我们需要了解OS管理的计算机硬件系统– <code class="docutils literal notranslate"><span class="pre">QEMU</span> <span class="pre">riscv-64</span> <span class="pre">virt</span> <span class="pre">machine</span></code> 。这表示了一台虚拟的RISC-V 64计算机，CPU的个数是可以通过参数 <code class="docutils literal notranslate"><span class="pre">-cpu</span> <span class="pre">num</span></code> 配置的，内存也是可通过参数 <code class="docutils literal notranslate"><span class="pre">-m</span> <span class="pre">numM/G</span></code> 来配置。这是标配信息。这台虚拟计算机还有很多外设信息，每个设备在物理上连接到了父设备上最后再通过总线等连接起来构成一整个设备树。QEMU 可以把它模拟的机器细节信息全都导出到dtb格式的二进制文件中，并可通过 <code class="docutils literal notranslate"><span class="pre">dtc</span></code> （Device Tree Compiler）工具转成可理解的文本文件。如想详细了解这个文件的格式说明可以参考  <a class="reference external" href="https://buildmedia.readthedocs.org/media/pdf/devicetree-specification/latest/devicetree-specification.pdf">Devicetree Specification</a> 。</p>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>qemu-system-riscv64 -machine virt -machine <span class="nv">dumpdtb</span><span class="o">=</span>riscv64-virt.dtb -bios default
 
@@ -206,7 +441,7 @@ commentsRunWhenDOMLoaded(addUtterances);
 </div></blockquote>
 </section>
 <section id="id6">
-<h3>传递设备树信息<a class="headerlink" href="#id6" title="永久链接至标题"></a></h3>
+<h3>传递设备树信息<a class="headerlink" href="#id6" title="永久链接至标题">#</a></h3>
 <p>操作系统在启动后需要了解计算机系统中所有接入的设备，这就要有一个读取全部已接入设备信息的能力，而设备信息放在哪里，又是谁帮我们来做的呢？在 RISC-V 中，这个一般是由 bootloader，即 OpenSBI or RustSBI 固件完成的。它来完成对于包括物理内存在内的各外设的探测，将探测结果以 <strong>设备树二进制对象（DTB，Device Tree Blob）</strong> 的格式保存在物理内存中的某个地方。然后bootloader会启动操作系统，即把放置DTB的物理地址将放在 <code class="docutils literal notranslate"><span class="pre">a1</span></code> 寄存器中，而将会把 HART ID （<strong>HART，Hardware Thread，硬件线程，可以理解为执行的 CPU 核</strong>）放在 <code class="docutils literal notranslate"><span class="pre">a0</span></code> 寄存器上，然后跳转到操作系统的入口地址处继续执行。例如，我们可以查看 <code class="docutils literal notranslate"><span class="pre">virtio_drivers</span></code> crate中的在裸机环境下使用驱动程序的例子。我们只需要给 <cite>rust_main</cite> 函数增加两个参数（即 <code class="docutils literal notranslate"><span class="pre">a0</span></code> 和 <code class="docutils literal notranslate"><span class="pre">a1</span></code> 寄存器中的值 ）即可：</p>
 <div class="highlight-Rust notranslate"><div class="highlight"><pre><span></span><span class="c1">//virtio_drivers/examples/riscv/src/main.rs</span>
 <span class="cp">#[no_mangle]</span><span class="w"></span>
@@ -220,7 +455,7 @@ commentsRunWhenDOMLoaded(addUtterances);
 <p>这样测试用例就获得了bootloader传来的放置DTB的物理地址。</p>
 </section>
 <section id="id7">
-<h3>解析设备树信息<a class="headerlink" href="#id7" title="永久链接至标题"></a></h3>
+<h3>解析设备树信息<a class="headerlink" href="#id7" title="永久链接至标题">#</a></h3>
 <p>对于解析设备树中的各种属性，我们不需要自己来实现这件事情，可以直接调用 <a class="reference external" href="https://github.com/rcore-os/device_tree-rs&quot;">rCore 中 device_tree 库</a> ，然后遍历树上节点即可：</p>
 <div class="highlight-Rust notranslate"><div class="highlight"><pre><span></span><span class="c1">// 遍历设备树并初始化设备</span>
 <span class="k">fn</span> <span class="nf">init_dt</span><span class="p">(</span><span class="n">dtb</span>: <span class="kt">usize</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
@@ -280,7 +515,7 @@ commentsRunWhenDOMLoaded(addUtterances);
 <p><cite>virtio_probe</cite> 函数会进一步查找virtio设备节点中的`reg` 属性，从而可以找到virtio设备的具体类型（如 <cite>DeviceType::Block</cite> 块设备类型）等参数。这样我们就可以对具体的virtio设备进行初始化和进行具体I/O操作了。</p>
 </section>
 <section id="id8">
-<h3>平台级中断控制器<a class="headerlink" href="#id8" title="永久链接至标题"></a></h3>
+<h3>平台级中断控制器<a class="headerlink" href="#id8" title="永久链接至标题">#</a></h3>
 <p>如果要让操作系统处理外设中断，就需要对中断控制器进行初始化设置。在RISC-V中，与外设连接的I/O控制器的一个重要组成是平台级中断控制器（Platform-Level Interrupt Controller，PLIC），它汇聚了各种外设的中断信号，并连接到CPU的外部中断引脚上。通过RISC-V的 <code class="docutils literal notranslate"><span class="pre">mie</span></code> 寄存器中的 <code class="docutils literal notranslate"><span class="pre">meie</span></code> 位，可以控制这个引脚是否接收外部中断信号。当然，通过RISC-V中M Mode的中断委托机制，也可以在RISC-V的S Mode下，通过 <code class="docutils literal notranslate"><span class="pre">sie</span></code> 寄存器中的 <code class="docutils literal notranslate"><span class="pre">seie</span></code> 位，对中断信号是否接收进行控制。</p>
 <p>CPU可以通过MMIO方式来对PLIC进行管理，下面是一下与PLIC相关的寄存器：</p>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">寄存器         地址      功能描述</span>
@@ -316,7 +551,7 @@ commentsRunWhenDOMLoaded(addUtterances);
 </section>
 </section>
 <section id="id9">
-<h2>串口驱动程序<a class="headerlink" href="#id9" title="永久链接至标题"></a></h2>
+<h2>串口驱动程序<a class="headerlink" href="#id9" title="永久链接至标题">#</a></h2>
 <p>完成上述前期准备工作后，我们就可以开始设计实现驱动程序了。
 首先我们要管理是物理上存在的串口设备。
 串口（Universal Asynchronous Receiver-Transmitter，简称UART）是一种在嵌入式系统中常用的用于传输、接收系列数据的外部设备。串行数据传输是逐位（bit）顺序发送数据的过程。</p>
@@ -348,7 +583,7 @@ uart@10000000 <span class="o">{</span>
 <p>这里我们仅关注有输入数据时串口产生的中断。</p>
 <p>了解QEMU模拟的兼容NS16550A硬件规范是写驱动程序的准备工作。在 UART 中，可访问的 I/O寄存器一共有8个。访问I/O寄存器的方法把串口寄存器的MMIO起始地址加上偏移量，就是各个寄存器的MMIO地址了。</p>
 <section id="id10">
-<h3>串口设备初始化<a class="headerlink" href="#id10" title="永久链接至标题"></a></h3>
+<h3>串口设备初始化<a class="headerlink" href="#id10" title="永久链接至标题">#</a></h3>
 <p>第一步是对串口进行初始化设置：</p>
 <div class="highlight-Rust notranslate"><div class="highlight"><pre><span></span><span class="kd">let</span><span class="w"> </span><span class="n">ptr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">UART_ADDR</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="o">*</span><span class="k">mut</span><span class="w"> </span><span class="kt">u8</span><span class="p">;</span><span class="w"></span>
 <span class="c1">// 偏移 3 指出每次传输的位数为 8 位，即一个字节</span>
@@ -376,14 +611,14 @@ uart@10000000 <span class="o">{</span>
 4. 设置输入产生的中断频率</p>
 </section>
 <section id="id11">
-<h3>串口设备输入输出操作<a class="headerlink" href="#id11" title="永久链接至标题"></a></h3>
+<h3>串口设备输入输出操作<a class="headerlink" href="#id11" title="永久链接至标题">#</a></h3>
 <p>先看串口输出，由于不设置和处理输出后产生中断的情况，使得整个输出操作比较简单。即向偏移量为 <code class="docutils literal notranslate"><span class="pre">0</span></code> 的串口控制寄存器的MMIO地址写8位字符即可。</p>
 <div class="highlight-Rust notranslate"><div class="highlight"><pre><span></span><span class="kd">let</span><span class="w"> </span><span class="n">ptr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">UART_ADDR</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="o">*</span><span class="k">mut</span><span class="w"> </span><span class="kt">u8</span><span class="p">;</span><span class="w"></span>
 <span class="n">ptr</span><span class="p">.</span><span class="n">add</span><span class="p">(</span><span class="mi">0</span><span class="p">).</span><span class="n">write_volatile</span><span class="p">(</span><span class="n">c</span><span class="p">);</span><span class="w"></span>
 </pre></div>
 </div>
 <p>但对于串口输入的处理，由于要考虑中断，相对就要复杂一些。对于操作系统的一般处理过程是，首先是能接收中断，即在 <code class="docutils literal notranslate"><span class="pre">trap_handler</span></code> 中通过访问 <code class="docutils literal notranslate"><span class="pre">scause</span></code> 寄存器，能够识别出有外部中断产生。然后再进一步通过读PLIC的 <code class="docutils literal notranslate"><span class="pre">Claim</span></code> 寄存器来了解是否是收到了串口发来的输入中断。如果确定是，就通过对串口寄存器的偏移量为 <code class="docutils literal notranslate"><span class="pre">0</span></code> 的串口控制寄存器的MMIO地址进行读一个字节的操作，从而获得通过串口输入的字符。</p>
-<p>在我们的具体实现中，与上述的一般中断处理过程不太一样。首先操作系统通过自定义的 <code class="docutils literal notranslate"><span class="pre">SBI_DEVICE_HANDLER</span></code> SBI调用，告知RustSBI在收到外部中断后，要跳转到到的操作系统中处理外部中断的函数 <code class="docutils literal notranslate"><span class="pre">device_trap_handler</span></code> 。这样，在外部中断产生后，先由RustSBI在M Mode下接收的，并转到S Mode，交由 <code class="docutils literal notranslate"><span class="pre">device_trap_handler</span></code> 内核函数进一步处理。接下来就是 PLIC识别出是串口中断号 <code class="docutils literal notranslate"><span class="pre">10</span></code> 后，最终交由 <code class="docutils literal notranslate"><span class="pre">uart::InBuffer</span></code> 结构的 <code class="docutils literal notranslate"><span class="pre">peinding</span></code> 函数处理。</p>
+<p>在我们的具体实现中，与上述的一般中断处理过程不太一样。首先操作系统通过自定义的 <code class="docutils literal notranslate"><span class="pre">SBI_DEVICE_HANDLER</span></code> SBI调用，告知RustSBI在收到外部中断后，要跳转到的操作系统中处理外部中断的函数 <code class="docutils literal notranslate"><span class="pre">device_trap_handler</span></code> 。这样，在外部中断产生后，先由RustSBI在M Mode下接收的，并转到S Mode，交由 <code class="docutils literal notranslate"><span class="pre">device_trap_handler</span></code> 内核函数进一步处理。接下来就是 PLIC识别出是串口中断号 <code class="docutils literal notranslate"><span class="pre">10</span></code> 后，最终交由 <code class="docutils literal notranslate"><span class="pre">uart::InBuffer</span></code> 结构的 <code class="docutils literal notranslate"><span class="pre">peinding</span></code> 函数处理。</p>
 <div class="highlight-Rust notranslate"><div class="highlight"><pre><span></span><span class="kd">let</span><span class="w"> </span><span class="n">c</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Uart</span>::<span class="n">new</span><span class="p">().</span><span class="n">get</span><span class="p">().</span><span class="n">unwrap</span><span class="p">();</span><span class="w"></span>
 <span class="bp">self</span><span class="p">.</span><span class="n">buffer</span><span class="p">[</span><span class="bp">self</span><span class="p">.</span><span class="n">write_idx</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">c</span><span class="p">;</span><span class="w"></span>
 <span class="bp">self</span><span class="p">.</span><span class="n">write_idx</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="bp">self</span><span class="p">.</span><span class="n">write_idx</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">%</span><span class="w"> </span><span class="mi">128</span><span class="p">;</span><span class="w"></span>
@@ -392,42 +627,136 @@ uart@10000000 <span class="o">{</span>
 <p>这个 <code class="docutils literal notranslate"><span class="pre">uart::InBuffer</span></code> 结构实际上是一个环形队列，新的输入数据会覆盖队列中旧的输入数据。</p>
 </section>
 <section id="id12">
-<h3>对进程管理的改进<a class="headerlink" href="#id12" title="永久链接至标题"></a></h3>
+<h3>对进程管理的改进<a class="headerlink" href="#id12" title="永久链接至标题">#</a></h3>
 <p>在目前的操作系统实现中，当一个进程通过 <code class="docutils literal notranslate"><span class="pre">sys_read</span></code> 系统调用来获取串口字符时，并没有用上中断机制。但一个进程读不到字符的时候，将会被操作系统调度到就绪队列的尾部，等待下一次执行的时刻。这其实就是一种变相的轮询方式来获取串口的输入字符。这里其实是可以对进程管理做的一个改进，来避免进程通过轮询的方式检查串口字符输入。</p>
 <p>如果一个进程通过系统调用想获取串口输入，但此时串口还没有输入的字符，那么就设置一个进程等待串口输入的等待队列，然后把当前进程设置等待状态，并挂在这个等待队列上，把CPU让给其它就绪进程执行。当产生串口输入中断后，操作系统将查找等待串口输入的等待队列上的进程，把它唤醒并加入到就绪队列中。这样但这个进程再次执行时，就可以获取到串口数据了。</p>
 </section>
 </section>
 </section>
 
-
-           </div>
+        </article>
+      </div>
+      <footer>
+        
+        <div class="related-pages">
+          <a class="next-page" href="2device-driver-2.html">
+              <div class="page-info">
+                <div class="context">
+                  <span>Next</span>
+                </div>
+                <div class="title">virtio设备驱动程序</div>
+              </div>
+              <svg><use href="#svg-arrow-right"></use></svg>
+            </a>
+          <a class="prev-page" href="1io-interface.html">
+              <svg><use href="#svg-arrow-right"></use></svg>
+              <div class="page-info">
+                <div class="context">
+                  <span>Previous</span>
+                </div>
+                
+                <div class="title">I/O设备</div>
+                
+              </div>
+            </a>
+        </div>
+        <div class="bottom-of-page">
+          <div class="left-details">
+            <div class="copyright">
+                Copyright &#169; 2020-2022, Yu Chen, Yifan Wu
+            </div>
+            Made with <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
+            
+            <a href="https://github.com/pradyunsg/furo">Furo</a>
+            
           </div>
-          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="1io-interface.html" class="btn btn-neutral float-left" title="I/O设备" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> 上一页</a>
-        <a href="2device-driver-2.html" class="btn btn-neutral float-right" title="virtio设备驱动程序" accesskey="n" rel="next">下一页 <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+          <div class="right-details">
+            <div class="icons">
+              
+            </div>
+          </div>
+        </div>
+        
+      </footer>
     </div>
+    <aside class="toc-drawer">
+      
+      
+      <div class="toc-sticky toc-scroll">
+        <div class="toc-title-container">
+          <span class="toc-title">
+            目录
+          </span>
+        </div>
+        <div class="toc-tree-container">
+          <div class="toc-tree">
+            <ul>
+<li><a class="reference internal" href="#">外设平台与串口驱动程序</a><ul>
+<li><a class="reference internal" href="#id2">本节导读</a></li>
+<li><a class="reference internal" href="#id3">驱动程序概述</a></li>
+<li><a class="reference internal" href="#id4">硬件系统架构</a><ul>
+<li><a class="reference internal" href="#id5">设备树</a></li>
+<li><a class="reference internal" href="#id6">传递设备树信息</a></li>
+<li><a class="reference internal" href="#id7">解析设备树信息</a></li>
+<li><a class="reference internal" href="#id8">平台级中断控制器</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#id9">串口驱动程序</a><ul>
+<li><a class="reference internal" href="#id10">串口设备初始化</a></li>
+<li><a class="reference internal" href="#id11">串口设备输入输出操作</a></li>
+<li><a class="reference internal" href="#id12">对进程管理的改进</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
 
-  <hr/>
-
-  <div role="contentinfo">
-    <p>&#169; 版权所有 2020-2022, Yu Chen, Yifan Wu.</p>
-  </div>
-
-  利用 <a href="https://www.sphinx-doc.org/">Sphinx</a> 构建，使用了 
-    <a href="https://github.com/readthedocs/sphinx_rtd_theme">主题</a>
-    由 <a href="https://readthedocs.org">Read the Docs</a>开发.
-   
-
-</footer>
+          </div>
         </div>
       </div>
-    </section>
+      
+      
+    </aside>
   </div>
-  <script>
-      jQuery(function () {
-          SphinxRtdTheme.Navigation.enable(true);
-      });
-  </script> 
+</div><script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/scripts/furo.js"></script>
+    <script kind="utterances">
 
-</body>
+    var commentsRunWhenDOMLoaded = cb => {
+    if (document.readyState != 'loading') {
+        cb()
+    } else if (document.addEventListener) {
+        document.addEventListener('DOMContentLoaded', cb)
+    } else {
+        document.attachEvent('onreadystatechange', function() {
+        if (document.readyState == 'complete') cb()
+        })
+    }
+}
+
+var addUtterances = () => {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src = "https://utteranc.es/client.js";
+    script.async = "async";
+
+    script.setAttribute("repo", "rcore-os/rCore-Tutorial-Book-v3");
+    script.setAttribute("issue-term", "pathname");
+    script.setAttribute("theme", "github-light");
+    script.setAttribute("label", "comments");
+    script.setAttribute("crossorigin", "anonymous");
+
+    sections = document.querySelectorAll("div > section");
+    if (sections !== null) {
+        section = sections[sections.length-1];
+        section.appendChild(script);
+    }
+}
+commentsRunWhenDOMLoaded(addUtterances);
+</script>
+    <script src="../_static/translations.js"></script>
+    </body>
 </html>

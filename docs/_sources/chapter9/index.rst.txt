@@ -1,3 +1,5 @@
+.. _link-chapter9:
+
 第九章：I/O设备管理
 ==============================================
 
@@ -9,4 +11,5 @@
    2device-driver-1
    2device-driver-2
    4exercise
+   5answer
    

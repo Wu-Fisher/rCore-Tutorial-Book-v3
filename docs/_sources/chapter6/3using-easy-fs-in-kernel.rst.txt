@@ -335,10 +335,10 @@ K210 真实硬件平台
 
 一个进程可以访问的多个文件，所以在操作系统中需要有一个管理进程访问的多个文件的结构，这就是 **文件描述符表** (File Descriptor Table) ，其中的每个 **文件描述符** (File Descriptor) 代表了一个特定读写属性的I/O资源。
 
-为简化操作系统设计实现，可以让每个进程都带有一个线性的 **文件描述符表** ，记录该进程请求内核打开并读写的那些文件集合。而 **文件描述符** (File Descriptor) 则是一个非负整数，表示文件描述符表中一个打开的 **文件描述符** 所处的位置（可理解为数组下标）。进程通过文件描述符，可以在自身的文件描述符表中找到对应的文件记录信息，从而也就找到了对应的文件，并对文件进行读写。当打开（ ``open`` ）或创建（ ``create`` ） 一个文件的时候，如果顺利，内核会返回给应用刚刚打开或创建的文件对应的文件描述符；而当应用想关闭（ ``close`` ）一个文件的时候，也需要向内核提供对应的文件描述符，以完成对应文件相关资源的回收操作。
+为简化操作系统设计实现，可以让每个进程都带有一个线性的 **文件描述符表** ，记录该进程请求内核打开并读写的那些文件集合。而 **文件描述符** (File Descriptor) 则是一个非负整数，表示文件描述符表中一个打开的 **文件描述符** 所处的位置（可理解为数组下标）。进程通过文件描述符，可以在自身的文件描述符表中找到对应的文件记录信息，从而也就找到了对应的文件，并对文件进行读写。当打开（ ``open`` ）或创建（ ``create`` ） 一个文件的时候，一般情况下内核会返回给应用刚刚打开或创建的文件对应的文件描述符；而当应用想关闭（ ``close`` ）一个文件的时候，也需要向内核提供对应的文件描述符，以完成对应文件相关资源的回收操作。
 
 
-因为 ``OSInode`` 也是要一种要放到进程文件描述符表中，并通过 ``sys_read/write`` 系统调用进行读写的文件，因此我们也需要为它实现 ``File`` Trait ：
+因为 ``OSInode`` 也是一种要放到进程文件描述符表中文件，并可通过 ``sys_read/write`` 系统调用进行读写操作，因此我们也需要为它实现 ``File`` Trait ：
 
 .. code-block:: rust
 
@@ -416,7 +416,8 @@ K210 真实硬件平台
 
 应用访问文件的内核机制实现
 -----------------------------------------------
-应用程序在访问文件之前，首先需要完成对文件系统的初始化和加载。这可以通过操作系统来完成，也可以让应用程序发出文件系统相关的系统调用（如 ``mount``等）来完成。我们这里的选择是让操作系统直接完成。
+
+应用程序在访问文件之前，首先需要完成对文件系统的初始化和加载。这可以通过操作系统来完成，也可以让应用程序发出文件系统相关的系统调用（如 ``mount`` 等）来完成。我们这里的选择是让操作系统直接完成。
 
 应用程序如果要基于文件进行I/O访问，大致就会涉及如下一些系统调用：
 
@@ -594,29 +595,18 @@ K210 真实硬件平台
 
 .. code-block:: rust
     :linenos:
-    :emphasize-lines: 15-24
+    :emphasize-lines: 6-9
 
     // os/src/syscall/process.rs
 
-    pub fn sys_exec(path: *const u8, mut args: *const usize) -> isize {
+    pub fn sys_exec(path: *const u8) -> isize {
         let token = current_user_token();
         let path = translated_str(token, path);
-        let mut args_vec: Vec<String> = Vec::new();
-        loop {
-            let arg_str_ptr = *translated_ref(token, args);
-            if arg_str_ptr == 0 {
-                break;
-            }
-            args_vec.push(translated_str(token, arg_str_ptr as *const u8));
-            unsafe { args = args.add(1); }
-        }
         if let Some(app_inode) = open_file(path.as_str(), OpenFlags::RDONLY) {
             let all_data = app_inode.read_all();
             let task = current_task().unwrap();
-            let argc = args_vec.len();
-            task.exec(all_data.as_slice(), args_vec);
-            // return argc because cx.x[10] will be covered with it later
-            argc as isize
+            task.exec(all_data.as_slice());
+            0
         } else {
             -1
         }
@@ -665,7 +655,7 @@ K210 真实硬件平台
 读写文件
 +++++++++++++++++++++++++++++++++++++++++++++++
 
-基于文件抽象接口和文件描述符表，我们可以按照无结构的字节流在处理基本的文件读写，这样可以让文件读写系统调用 ``sys_read/write`` 变得更加具有普适性，为后续支持把管道等抽象为文件打下了基础：
+基于文件抽象接口和文件描述符表，我们可以按照无结构的字节流来处理基本的文件读写，这样可以让文件读写系统调用 ``sys_read/write`` 变得更加具有普适性，为后续支持把管道等抽象为文件打下了基础：
 
 .. code-block:: rust
 
